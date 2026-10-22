@@ -1,0 +1,134 @@
+---
+// Sección de inicio: foto + titular y presentación. El <slot /> recibe la fila de iconos.
+import { Image } from "astro:assets";
+import { site } from "../data/site";
+
+const { hero } = site;
+---
+
+<section id="inicio" class="hero" aria-labelledby="hero-title">
+  <div class="container">
+    <div class="grid">
+      <div class="photo" data-reveal>
+        {
+          hero.photo ? (
+            <Image
+              src={hero.photo}
+              alt={hero.photoAlt}
+              widths={[320, 480, 720]}
+              sizes="(min-width: 860px) 360px, 280px"
+              loading="eager"
+              fetchpriority="high"
+            />
+          ) : (
+            // Placeholder hasta que se añada una foto en site.ts
+            <div class="photo-placeholder" role="img" aria-label="Espacio reservado para la foto">
+              <span aria-hidden="true">{site.initials}</span>
+            </div>
+          )
+        }
+      </div>
+
+      <div class="copy">
+        <p class="eyebrow">{site.role}</p>
+        <h1 id="hero-title">{hero.headline}</h1>
+        <p class="intro">{hero.intro}</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="#proyectos">Ver proyectos</a>
+          <a class="btn btn-ghost" href="#contactos">Contactar</a>
+        </div>
+      </div>
+    </div>
+
+    <slot />
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding-top: calc(var(--header-h) + clamp(2.5rem, 8vw, 6rem));
+    padding-bottom: clamp(3rem, 8vw, 5rem);
+  }
+
+  /* Móvil primero: foto y texto apilados */
+  .grid {
+    display: grid;
+    gap: 2.5rem;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .photo {
+    width: min(280px, 72vw);
+    aspect-ratio: 1;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+
+  .photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .photo-placeholder {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    background:
+      radial-gradient(120% 120% at 20% 10%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 60%),
+      linear-gradient(160deg, var(--surface), var(--surface-2));
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+
+  .photo-placeholder span {
+    font-size: clamp(4rem, 12vw, 6rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: var(--accent-ink);
+    opacity: 0.85;
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 7vw, 4.75rem);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1.04;
+  }
+
+  .intro {
+    margin-top: 1.25rem;
+    max-width: 34rem;
+    font-size: clamp(1.125rem, 1.8vw, 1.3125rem);
+    color: var(--text-2);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  /* Escritorio: foto a la izquierda, texto a la derecha */
+  @media (min-width: 860px) {
+    .grid {
+      grid-template-columns: minmax(260px, 360px) 1fr;
+      gap: clamp(3rem, 6vw, 5.5rem);
+      align-items: center;
+      justify-items: start;
+      text-align: left;
+    }
+
+    .photo {
+      width: 100%;
+    }
+
+    .actions {
+      justify-content: flex-start;
+    }
+  }
+</style>

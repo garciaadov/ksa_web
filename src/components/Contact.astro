@@ -1,0 +1,118 @@
+---
+// Contacto: LinkedIn, GitHub y email (sin formulario). Datos en site.contact.
+import { site } from "../data/site";
+import Icon from "./Icon.astro";
+---
+
+<section id="contactos" class="section contact" aria-labelledby="contact-title">
+  <div class="container grid">
+    <div class="head" data-reveal>
+      <p class="eyebrow">Contactos</p>
+      <h2 id="contact-title" class="section-title">Hablemos.</h2>
+      <p class="section-lead">{site.contact.intro}</p>
+    </div>
+
+    <ul class="links" data-reveal style="--reveal-delay: 120ms">
+      {
+        site.contact.links.map((link) => (
+          <li>
+            <a class="link" href={link.href} rel={link.href.startsWith("http") ? "me noopener" : undefined}>
+              <span class="icon">
+                <Icon name={link.icon} size={22} />
+              </span>
+              <span class="text">
+                <span class="label">{link.label}</span>
+                <span class="handle">{link.handle}</span>
+              </span>
+              <Icon name="arrowUpRight" size={18} class="arrow" />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .contact {
+    padding-bottom: clamp(5rem, 14vw, 10rem);
+  }
+
+  .grid {
+    display: grid;
+    gap: clamp(2rem, 5vw, 3rem);
+  }
+
+  @media (min-width: 860px) {
+    .grid {
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 5rem;
+    }
+  }
+
+  .links {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem 1rem 1rem;
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm), inset 0 0 0 1px var(--border);
+    transition:
+      var(--theme-transition),
+      transform 0.3s var(--ease);
+  }
+
+  .link:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md), inset 0 0 0 1px var(--border);
+  }
+
+  .icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+  }
+
+  .text {
+    display: grid;
+    min-width: 0;
+  }
+
+  .label {
+    font-weight: 600;
+  }
+
+  .handle {
+    overflow: hidden;
+    font-size: 0.9375rem;
+    color: var(--text-2);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .link :global(.arrow) {
+    flex-shrink: 0;
+    margin-left: auto;
+    color: var(--text-2);
+    transition:
+      transform 0.25s var(--ease),
+      color 0.25s ease;
+  }
+
+  .link:hover :global(.arrow) {
+    color: var(--accent-ink);
+    transform: translate(2px, -2px);
+  }
+</style>

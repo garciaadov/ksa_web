@@ -1,0 +1,32 @@
+---
+// Icono SVG inline. Decorativo por defecto (aria-hidden); pasa `label` si transmite información.
+import { icons, type IconName } from "../lib/icons";
+
+interface Props {
+  name: IconName;
+  size?: number;
+  label?: string;
+  class?: string;
+}
+
+const { name, size = 20, label, class: className } = Astro.props;
+const icon = icons[name];
+const paint =
+  icon.kind === "stroke"
+    ? { fill: "none", stroke: "currentColor", "stroke-width": 1.75, "stroke-linecap": "round", "stroke-linejoin": "round" } as const
+    : ({ fill: "currentColor" } as const);
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  width={size}
+  height={size}
+  class={className}
+  aria-hidden={label ? undefined : "true"}
+  role={label ? "img" : undefined}
+  aria-label={label}
+  focusable="false"
+  {...paint}
+  set:html={icon.body}
+/>

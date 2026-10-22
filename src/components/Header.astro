@@ -1,0 +1,282 @@
+---
+// Cabecera fija y translúcida: logo, navegación (hamburguesa en móvil) e interruptor de tema.
+import { Image } from "astro:assets";
+import { site } from "../data/site";
+import { withBase } from "../lib/url";
+import Icon from "./Icon.astro";
+import ThemeToggle from "./ThemeToggle.astro";
+
+interface Props {
+  /** En la portada los enlaces son anclas locales; en otras páginas apuntan a la portada. */
+  isHome?: boolean;
+}
+
+const { isHome = false } = Astro.props;
+const anchor = (id: string): string => (isHome ? `#${id}` : withBase(`#${id}`));
+
+const links = [
+  { id: "inicio", label: "Inicio" },
+  { id: "proyectos", label: "Proyectos" },
+  { id: "contactos", label: "Contactos" },
+];
+---
+
+<header class="site-header" data-header>
+  <div class="container inner">
+    <a class="logo" href={anchor("inicio")}>
+      <Image src={site.logo} alt={`${site.initials}: ${site.name}, ir al inicio`} width={40} height={40} densities={[1, 2]} loading="eager" />
+    </a>
+
+    <nav class="nav" aria-label="Principal">
+      <button
+        type="button"
+        class="menu-button"
+        aria-expanded="false"
+        aria-controls="menu-principal"
+        aria-label="Abrir menú"
+        data-menu-button
+      >
+        <Icon name="menu" size={22} />
+      </button>
+      <ul id="menu-principal" class="nav-list" data-menu>
+        {
+          links.map((link) => (
+            <li>
+              <a href={anchor(link.id)} data-nav-link={link.id}>
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <ThemeToggle />
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>("[data-header]");
+  const button = document.querySelector<HTMLButtonElement>("[data-menu-button]");
+  const menu = document.querySelector<HTMLElement>("[data-menu]");
+  const navLinks = document.querySelectorAll<HTMLAnchorElement>("[data-nav-link]");
+
+  // ---- Menú móvil ----
+  function setMenu(open: boolean): void {
+    if (!button || !menu) return;
+    button.setAttribute("aria-expanded", String(open));
+    button.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
+    menu.classList.toggle("is-open", open);
+  }
+
+  button?.addEventListener("click", () => setMenu(button.getAttribute("aria-expanded") !== "true"));
+  navLinks.forEach((link) => link.addEventListener("click", () => setMenu(false)));
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && button?.getAttribute("aria-expanded") === "true") {
+      setMenu(false);
+      button.focus();
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (header && event.target instanceof Node && !header.contains(event.target)) setMenu(false);
+  });
+
+  // ---- Sección activa + sombra del header al hacer scroll ----
+  const sections = [...navLinks]
+    .map((link) => document.getElementById(link.dataset.navLink ?? ""))
+    .filter((el): el is HTMLElement => el !== null);
+
+  function update(): void {
+    header?.classList.toggle("is-scrolled", window.scrollY > 8);
+    if (sections.length === 0) return;
+
+    // La activa es la última sección cuyo inicio ha pasado el 35 % superior de la pantalla;
+    // al llegar al final de la página, la última.
+    const line = window.innerHeight * 0.35;
+    const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+    let active = sections[0];
+    for (const section of sections) {
+      if (section.getBoundingClientRect().top <= line) active = section;
+    }
+    if (atBottom) active = sections[sections.length - 1];
+
+    navLinks.forEach((link) => {
+      if (link.dataset.navLink === active?.id) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
+    });
+  }
+
+  let ticking = false;
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        update();
+        ticking = false;
+      });
+    },
+    { passive: true },
+  );
+  window.addEventListener("resize", update, { passive: true });
+  update();
+</script>
+
+<style>
+  .site-header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    height: var(--header-h);
+    background: var(--header-bg);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid transparent;
+    transition: var(--theme-transition);
+  }
+
+  .site-header.is-scrolled {
+    border-bottom-color: var(--border);
+  }
+
+  .inner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    height: 100%;
+  }
+
+  .logo {
+    display: inline-flex;
+    border-radius: 10px;
+    transition: transform 0.25s var(--ease);
+  }
+
+  .logo:hover {
+    transform: scale(1.05);
+  }
+
+  .nav {
+    margin-left: auto;
+  }
+
+  /* ---- Móvil: botón hamburguesa + panel desplegable ---- */
+  .menu-button {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .menu-button:hover {
+    background: var(--accent-soft);
+  }
+
+  .nav-list {
+    position: absolute;
+    top: calc(var(--header-h) + 0.5rem);
+    right: var(--gutter);
+    left: var(--gutter);
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-md), 0 0 0 1px var(--border);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scale(0.98);
+    transform-origin: top right;
+    transition:
+      opacity 0.25s var(--ease),
+      transform 0.25s var(--ease),
+      visibility 0s linear 0.25s;
+  }
+
+  .nav-list.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition-delay: 0s;
+  }
+
+  /* Sin JS el menú queda siempre visible en la página (no se puede abrir) */
+  :global(html:not(.js)) .menu-button {
+    display: none;
+  }
+
+  :global(html:not(.js)) .nav-list {
+    position: static;
+    display: flex;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  .nav-list a {
+    display: block;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    font-size: 1.0625rem;
+    color: var(--text);
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .nav-list a:hover {
+    background: var(--surface-2);
+  }
+
+  .nav-list a[aria-current="location"] {
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+    font-weight: 600;
+  }
+
+  /* ---- Escritorio: enlaces en línea ---- */
+  @media (min-width: 720px) {
+    .menu-button {
+      display: none;
+    }
+
+    .nav-list {
+      position: static;
+      display: flex;
+      gap: 0.25rem;
+      padding: 0;
+      background: none;
+      box-shadow: none;
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      transition: none;
+    }
+
+    .nav-list a {
+      padding: 0.4rem 0.9rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.9375rem;
+      color: var(--text-2);
+    }
+
+    .nav-list a:hover {
+      color: var(--text);
+      background: transparent;
+    }
+
+    .inner {
+      gap: 1rem;
+    }
+  }
+</style>

@@ -1,0 +1,57 @@
+---
+// Rejilla de proyectos generada desde src/data/projects.ts.
+import { projects } from "../data/projects";
+import ProjectCard from "./ProjectCard.astro";
+---
+
+<section id="proyectos" class="section projects" aria-labelledby="projects-title">
+  <div class="container">
+    <header class="head" data-reveal>
+      <p class="eyebrow">Proyectos</p>
+      <h2 id="projects-title" class="section-title">Market de proyectos.</h2>
+      <p class="section-lead">Próximamente...</p>
+    </header>
+
+    {/* La rejilla solo se pinta si hay proyectos en src/data/projects.ts */}
+    {
+      projects.length > 0 && (
+        <ul class="grid">
+          {projects.map((project, index) => (
+            <li data-reveal style={`--reveal-delay: ${index * 90}ms`}>
+              <ProjectCard project={project} />
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .projects {
+    padding-top: clamp(3rem, 8vw, 5rem);
+  }
+
+  .head {
+    margin-bottom: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  /* 1 columna en móvil, 2 en tablet, 4 en escritorio */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>
