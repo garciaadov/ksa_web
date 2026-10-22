@@ -23,10 +23,10 @@ jobs:
       - uses: actions/checkout@v7
       - uses: withastro/action@v6
         env:
-          # https://garciaadov.github.io/ksa_web/
-          # Con dominio propio: SITE_URL=https://tu-dominio.com y BASE_PATH=/
-          SITE_URL: https://garciaadov.github.io
-          BASE_PATH: /ksa_web
+          # Dominio propio (ver public/CNAME). Sin dominio sería
+          # SITE_URL=https://garciaadov.github.io y BASE_PATH=/ksa_web
+          SITE_URL: https://ksaga.es
+          BASE_PATH: /
 
   deploy:
     needs: build
