@@ -45,7 +45,7 @@ export interface SiteConfig {
      *   import foto from "../assets/foto.jpg";
      * y pon aquí `photo: foto`.
      */
-    photo: ImageMetadata | "../assets/ksa_logo.png";
+    photo: ImageMetadata | null;
     photoAlt: string;
   };
   /** Fila de 5 iconos circulares bajo el hero. */
