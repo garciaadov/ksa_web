@@ -1,0 +1,39 @@
+# Compila la web con Astro y la publica en GitHub Pages en cada push a main.
+# Requiere: Settings → Pages → Source: "GitHub Actions".
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: withastro/action@v6
+        env:
+          # https://garciaadov.github.io/ksa_web/
+          # Con dominio propio: SITE_URL=https://tu-dominio.com y BASE_PATH=/
+          SITE_URL: https://garciaadov.github.io
+          BASE_PATH: /ksa_web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
