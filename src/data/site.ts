@@ -61,7 +61,7 @@ export const site: SiteConfig = {
   initials: "KSA",
   logo,
   role: "Software Developer",
-  title: "Aleks Garcia — Software Developer",
+  title: "KSAGA",
   description:
     "Portfolio de Aleks Garcia, Software Developer orientado a la ciberseguridad: proyectos y contacto.",
   locale: "es_ES",

@@ -1,22 +1,33 @@
 /**
- * Gráficos de marca generados a partir de site.ts (favicon, icono iOS, imagen Open Graph).
- * Se sirven como archivos estáticos desde src/pages/*.ts al compilar.
+ * Gráficos de marca generados al compilar (favicon, icono iOS, imagen Open Graph).
+ * Se sirven como archivos estáticos desde src/pages/*.ts.
  */
+import { join } from "node:path";
+import sharp from "sharp";
 import { site } from "../data/site";
+
+/** Logo original. Se lee desde la raíz del proyecto porque los endpoints se ejecutan al compilar. */
+const LOGO_PATH = join(process.cwd(), "src/assets/ksa_logo.png");
+/** Recorte que quita el halo exterior del logo, que a tamaño icono solo ensucia. */
+const LOGO_CROP = { left: 120, top: 120, width: 1014, height: 1014 };
+
+/** Logo recortado y escalado a PNG. `opaque` lo pone sobre fondo negro (iOS no admite transparencia). */
+export async function logoPng(size: number, opaque = false): Promise<Uint8Array<ArrayBuffer>> {
+  let image = sharp(LOGO_PATH).extract(LOGO_CROP).resize(size, size);
+  if (opaque) image = image.flatten({ background: "#000000" });
+  return new Uint8Array(await image.png({ compressionLevel: 9 }).toBuffer());
+}
 
 const FONT = "-apple-system, 'SF Pro Display', Inter, 'Segoe UI', Helvetica, Arial, sans-serif";
 
 const escapeXml = (text: string): string =>
   text.replace(/[<>&"']/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&apos;" })[c] ?? c);
 
-/** Monograma cuadrado. `adaptive` añade el color de acento oscuro cuando el sistema está en modo oscuro. */
-export function monogramSvg(size: number, adaptive = false): string {
+/** Monograma cuadrado con las iniciales (usado en la imagen Open Graph). */
+export function monogramSvg(size: number): string {
   const initials = escapeXml(site.initials);
   const fontSize = Math.round(size * (site.initials.length > 2 ? 0.33 : 0.42));
-  const style = adaptive
-    ? `<style>rect{fill:${site.accent.light}}@media (prefers-color-scheme:dark){rect{fill:${site.accent.dark}}}</style>`
-    : "";
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${style}<rect width="${size}" height="${size}" rx="${Math.round(size * 0.28)}" fill="${site.accent.light}"/><text x="50%" y="50%" dy="0.36em" text-anchor="middle" fill="#ffffff" font-family="${FONT}" font-size="${fontSize}" font-weight="700">${initials}</text></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="${size}" height="${size}" rx="${Math.round(size * 0.28)}" fill="${site.accent.light}"/><text x="50%" y="50%" dy="0.36em" text-anchor="middle" fill="#ffffff" font-family="${FONT}" font-size="${fontSize}" font-weight="700">${initials}</text></svg>`;
 }
 
 /** Imagen para compartir en redes (1200×630). */
