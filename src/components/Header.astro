@@ -1,19 +1,11 @@
 ---
-// Cabecera fija y translúcida: logo, navegación (hamburguesa en móvil) e interruptor de tema.
+// Cabecera fija y translúcida: logo, menú (hamburguesa en móvil) e interruptor claro/oscuro.
+// El tema inicial lo aplica el script inline de Layout.astro; aquí solo se gestiona el cambio manual.
 import { Image } from "astro:assets";
 import { site } from "../data/site";
-import { withBase } from "../lib/url";
 import Icon from "./Icon.astro";
-import ThemeToggle from "./ThemeToggle.astro";
 
-interface Props {
-  /** En la portada los enlaces son anclas locales; en otras páginas apuntan a la portada. */
-  isHome?: boolean;
-}
-
-const { isHome = false } = Astro.props;
-const anchor = (id: string): string => (isHome ? `#${id}` : withBase(`#${id}`));
-
+// "/#id" funciona igual desde la portada (solo hace scroll) y desde /privacidad/
 const links = [
   { id: "inicio", label: "Inicio" },
   { id: "experiencia", label: "Experiencia" },
@@ -24,8 +16,8 @@ const links = [
 
 <header class="site-header" data-header>
   <div class="container inner">
-    <a class="logo" href={anchor("inicio")}>
-      <Image src={site.logo} alt={`${site.initials}: ${site.name}, ir al inicio`} width={40} height={40} densities={[1, 2]} loading="eager" />
+    <a class="logo" href="/#inicio">
+      <Image src={site.logo} alt={`KSA: ${site.name}, ir al inicio`} width={40} height={40} densities={[1, 2]} loading="eager" />
     </a>
 
     <nav class="nav" aria-label="Principal">
@@ -43,7 +35,7 @@ const links = [
         {
           links.map((link) => (
             <li>
-              <a href={anchor(link.id)} data-nav-link={link.id}>
+              <a href={`/#${link.id}`} data-nav-link={link.id}>
                 {link.label}
               </a>
             </li>
@@ -52,7 +44,11 @@ const links = [
       </ul>
     </nav>
 
-    <ThemeToggle />
+    <button type="button" class="theme-toggle" role="switch" aria-checked="false" aria-label="Modo oscuro" data-theme-toggle>
+      <span class="knob" aria-hidden="true"></span>
+      <span class="slot sun"><Icon name="sun" size={16} /></span>
+      <span class="slot moon"><Icon name="moon" size={15} /></span>
+    </button>
   </div>
 </header>
 
@@ -124,6 +120,50 @@ const links = [
   );
   window.addEventListener("resize", update, { passive: true });
   update();
+
+  // ---- Interruptor claro / oscuro ----
+  type Theme = "light" | "dark";
+  const STORAGE_KEY = "theme";
+
+  const root = document.documentElement;
+  const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
+  const toggles = document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]");
+
+  const current = (): Theme => (root.dataset.theme === "dark" ? "dark" : "light");
+
+  // Solo se guarda (y se lee) la elección manual del usuario.
+  function stored(): Theme | null {
+    try {
+      const value = localStorage.getItem(STORAGE_KEY);
+      return value === "light" || value === "dark" ? value : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function apply(theme: Theme): void {
+    root.dataset.theme = theme;
+    toggles.forEach((btn) => btn.setAttribute("aria-checked", String(theme === "dark")));
+  }
+
+  apply(current());
+
+  toggles.forEach((btn) =>
+    btn.addEventListener("click", () => {
+      const next: Theme = current() === "dark" ? "light" : "dark";
+      apply(next);
+      try {
+        localStorage.setItem(STORAGE_KEY, next);
+      } catch {
+        // Almacenamiento no disponible (modo privado, bloqueado…): el cambio vale para esta visita.
+      }
+    }),
+  );
+
+  // Si el usuario no ha elegido, seguimos los cambios del sistema en vivo.
+  systemDark.addEventListener("change", (event) => {
+    if (!stored()) apply(event.matches ? "dark" : "light");
+  });
 </script>
 
 <style>
@@ -279,5 +319,82 @@ const links = [
     .inner {
       gap: 1rem;
     }
+  }
+
+  /* ---- Interruptor claro / oscuro ---- */
+  .theme-toggle {
+    --size: 30px;
+    --pad: 3px;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    width: calc(var(--size) * 2 + var(--pad) * 2);
+    height: calc(var(--size) + var(--pad) * 2);
+    padding: var(--pad);
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--surface-2);
+    box-shadow: inset 0 0 0 1px var(--border);
+    cursor: pointer;
+    transition: var(--theme-transition);
+  }
+
+  /* Sin JS el interruptor no funcionaría: se oculta y manda el sistema */
+  :global(html:not(.js)) .theme-toggle {
+    display: none;
+  }
+
+  .slot {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: var(--size);
+    height: var(--size);
+    color: var(--text-2);
+    transition: color 0.3s ease;
+  }
+
+  .knob {
+    position: absolute;
+    top: var(--pad);
+    left: var(--pad);
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    transition:
+      transform 0.35s var(--ease),
+      background-color 0.4s ease;
+  }
+
+  /* Claro: la bola está bajo el sol */
+  .sun {
+    color: var(--accent-ink);
+  }
+
+  /* Oscuro: la bola se desplaza bajo la luna */
+  :global([data-theme="dark"]) .knob {
+    transform: translateX(var(--size));
+    background: var(--surface-2);
+    box-shadow: 0 0 0 1px var(--border), var(--shadow-sm);
+  }
+
+  :global([data-theme="dark"]) .theme-toggle {
+    background: var(--bg);
+  }
+
+  :global([data-theme="dark"]) .sun {
+    color: var(--text-2);
+  }
+
+  :global([data-theme="dark"]) .moon {
+    color: var(--accent-ink);
+  }
+
+  .theme-toggle:hover {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
   }
 </style>

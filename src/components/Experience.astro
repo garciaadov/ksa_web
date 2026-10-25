@@ -1,10 +1,8 @@
 ---
 // Experiencia: fila de logos circulares que se desplaza suavemente hacia la izquierda en bucle.
-// Cada logo ocupa 1/4 del ancho, así que siempre se ven cuatro. Datos en src/data/experience.ts.
+// Cada logo ocupa 1/4 del ancho, así que siempre se ven cuatro. Datos en src/data/site.ts.
 import { Image } from "astro:assets";
-import { experience } from "../data/experience";
-import { site } from "../data/site";
-import { withBase } from "../lib/url";
+import { cv, experience } from "../data/site";
 import Icon from "./Icon.astro";
 
 /** Logos visibles a la vez en la fila. */
@@ -53,9 +51,9 @@ const duration = half.length * 6;
     }
 
     {
-      site.cv && (
+      cv && (
         <p class="more" data-reveal style="--reveal-delay: 180ms">
-          <a class="btn btn-ghost" href={withBase(site.cv)} download={site.cv} aria-label="Más información: descargar currículum en PDF">
+          <a class="btn btn-ghost" href={cv} download aria-label="Más información: descargar currículum en PDF">
             Más información...
             <Icon name="download" size={16} />
           </a>

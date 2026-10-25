@@ -1,5 +1,5 @@
 # Compila la web con Astro y la publica en GitHub Pages en cada push a main.
-# Requiere: Settings → Pages → Source: "GitHub Actions".
+# Requiere: Settings → Pages → Source: "GitHub Actions". El dominio está en public/CNAME.
 name: Deploy to GitHub Pages
 
 on:
@@ -22,11 +22,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: withastro/action@v6
-        env:
-          # Dominio propio (ver public/CNAME). Sin dominio sería
-          # SITE_URL=https://garciaadov.github.io y BASE_PATH=/ksa_web
-          SITE_URL: https://ksaga.es
-          BASE_PATH: /
 
   deploy:
     needs: build

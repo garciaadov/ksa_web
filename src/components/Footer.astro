@@ -1,14 +1,12 @@
 ---
 // Pie mínimo: © año + nombre + enlace a Privacidad.
-import { withBase } from "../lib/url";
-
 const year = new Date().getFullYear();
 ---
 
 <footer class="footer">
   <div class="container inner">
     <p>© {year} KSA</p>
-    <a href={withBase("privacidad/")}>Privacidad</a>
+    <a href="/privacidad/">Privacidad</a>
   </div>
 </footer>
 

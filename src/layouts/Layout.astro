@@ -2,7 +2,6 @@
 // Layout base: <head> con SEO / Open Graph, script anti-parpadeo del tema y animaciones de scroll.
 import "../styles/global.css";
 import { site } from "../data/site";
-import { withBase } from "../lib/url";
 
 interface Props {
   title?: string;
@@ -12,7 +11,7 @@ interface Props {
 const { title = site.title, description = site.description } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const ogImage = new URL(withBase("og.png"), Astro.site);
+const ogImage = new URL("/og.png", Astro.site);
 const accentVars = `--accent-light:${site.accent.light};--accent-dark:${site.accent.dark}`;
 ---
 
@@ -26,9 +25,9 @@ const accentVars = `--accent-light:${site.accent.light};--accent-dark:${site.acc
     <meta name="author" content={site.name} />
     <link rel="canonical" href={canonical} />
 
-    <!-- Iconos (generados en src/pages/*.ts a partir del logo) -->
-    <link rel="icon" href={withBase("favicon.png")} type="image/png" />
-    <link rel="apple-touch-icon" href={withBase("apple-touch-icon.png")} />
+    <!-- Iconos e imagen para redes: archivos fijos en public/ -->
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#FBFBFD" media="(prefers-color-scheme: light)" />
@@ -36,7 +35,7 @@ const accentVars = `--accent-light:${site.accent.light};--accent-dark:${site.acc
 
     <!-- Open Graph / redes sociales -->
     <meta property="og:type" content="website" />
-    <meta property="og:locale" content={site.locale} />
+    <meta property="og:locale" content="es_ES" />
     <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />

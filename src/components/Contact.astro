@@ -1,6 +1,6 @@
 ---
-// Contacto: LinkedIn, GitHub y email (sin formulario). Datos en site.contact.
-import { site } from "../data/site";
+// Contacto: enlaces a redes (sin formulario). Datos en `contact` de src/data/site.ts.
+import { contact } from "../data/site";
 import Icon from "./Icon.astro";
 ---
 
@@ -9,12 +9,12 @@ import Icon from "./Icon.astro";
     <div class="head" data-reveal>
       <p class="eyebrow">Contactos</p>
       <h2 id="contact-title" class="section-title">Hablemos.</h2>
-      <p class="section-lead">{site.contact.intro}</p>
+      <p class="section-lead">{contact.intro}</p>
     </div>
 
     <ul class="links" data-reveal style="--reveal-delay: 120ms">
       {
-        site.contact.links.map((link) => (
+        contact.links.map((link) => (
           <li>
             <a class="link" href={link.href} rel={link.href.startsWith("http") ? "me noopener" : undefined}>
               <span class="icon">

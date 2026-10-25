@@ -1,36 +1,25 @@
 ---
 // Sección de inicio: foto + titular y presentación.
 import { Image } from "astro:assets";
-import { site } from "../data/site";
-
-const { hero } = site;
+import { hero } from "../data/site";
 ---
 
 <section id="inicio" class="hero" aria-labelledby="hero-title">
   <div class="container">
     <div class="grid">
       <div class="photo" data-reveal>
-        {
-          hero.photo ? (
-            <Image
-              src={hero.photo}
-              alt={hero.photoAlt}
-              widths={[320, 480, 720]}
-              sizes="(min-width: 860px) 360px, 280px"
-              loading="eager"
-              fetchpriority="high"
-            />
-          ) : (
-            // Placeholder hasta que se añada una foto en site.ts
-            <div class="photo-placeholder" role="img" aria-label="Espacio reservado para la foto">
-              <span aria-hidden="true">{site.initials}</span>
-            </div>
-          )
-        }
+        <Image
+          src={hero.photo}
+          alt={hero.photoAlt}
+          widths={[320, 480, 720]}
+          sizes="(min-width: 860px) 360px, 280px"
+          loading="eager"
+          fetchpriority="high"
+        />
       </div>
 
       <div class="copy">
-        <p class="eyebrow">{site.role}</p>
+        <p class="eyebrow">{hero.role}</p>
         <h1 id="hero-title">{hero.headline}</h1>
         <p class="intro">{hero.intro}</p>
         <div class="actions">
@@ -68,25 +57,6 @@ const { hero } = site;
     width: 100%;
     height: 100%;
     object-fit: cover;
-  }
-
-  .photo-placeholder {
-    display: grid;
-    place-items: center;
-    width: 100%;
-    height: 100%;
-    background:
-      radial-gradient(120% 120% at 20% 10%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 60%),
-      linear-gradient(160deg, var(--surface), var(--surface-2));
-    box-shadow: inset 0 0 0 1px var(--border);
-  }
-
-  .photo-placeholder span {
-    font-size: clamp(4rem, 12vw, 6rem);
-    font-weight: 700;
-    letter-spacing: -0.04em;
-    color: var(--accent-ink);
-    opacity: 0.85;
   }
 
   h1 {
