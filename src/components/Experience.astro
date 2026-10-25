@@ -2,8 +2,15 @@
 // Experiencia: fila de logos circulares que se desplaza suavemente hacia la izquierda en bucle.
 // Cada logo ocupa 1/4 del ancho, así que siempre se ven cuatro. Datos en src/data/site.ts.
 import { Image } from "astro:assets";
-import { cv, experience } from "../data/site";
+import { experience, site, t, tr, type Lang } from "../data/site";
 import Icon from "./Icon.astro";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const text = t[lang].experience;
 
 /** Logos visibles a la vez en la fila. */
 const VISIBLE = 4;
@@ -20,8 +27,8 @@ const duration = half.length * 6;
 <section id="experiencia" class="section experience" aria-labelledby="experience-title">
   <div class="container">
     <header class="head" data-reveal>
-      <p class="eyebrow">Experiencia</p>
-      <h2 id="experience-title" class="section-title">Experiencia.</h2>
+      <p class="eyebrow">{text.eyebrow}</p>
+      <h2 id="experience-title" class="section-title">{text.title}</h2>
     </header>
 
     {
@@ -30,7 +37,7 @@ const duration = half.length * 6;
           {/* Lista accesible; la fila animada es solo visual */}
           <ul class="sr-only">
             {experience.map((item) => (
-              <li>{item.role ? `${item.name}: ${item.role}` : item.name}</li>
+              <li>{tr(item.name, lang)}</li>
             ))}
           </ul>
 
@@ -41,7 +48,7 @@ const duration = half.length * 6;
                   <span class="circle" style={`--logo-bg: ${item.background}; --scale: ${item.scale ?? 1}`}>
                     <Image src={item.logo} alt="" width={Math.round(256 * (item.scale ?? 1))} loading="lazy" />
                   </span>
-                  <span class="label">{item.role ? `${item.name} · ${item.role}` : item.name}</span>
+                  <span class="label">{tr(item.name, lang)}</span>
                 </li>
               ))}
             </ul>
@@ -51,10 +58,10 @@ const duration = half.length * 6;
     }
 
     {
-      cv && (
+      site.cv && (
         <p class="more" data-reveal style="--reveal-delay: 180ms">
-          <a class="btn btn-ghost" href={cv} download aria-label="Más información: descargar currículum en PDF">
-            Más información...
+          <a class="btn btn-ghost" href={site.cv} download aria-label={text.cvLabel}>
+            {text.cvButton}
             <Icon name="download" size={16} />
           </a>
         </p>

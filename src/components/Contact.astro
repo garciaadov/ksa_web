@@ -1,20 +1,26 @@
 ---
-// Contacto: enlaces a redes (sin formulario). Datos en `contact` de src/data/site.ts.
-import { contact } from "../data/site";
+// Contacto: enlaces a redes (sin formulario). Datos en `contactLinks` de src/data/site.ts.
+import { contactLinks, t, type Lang } from "../data/site";
 import Icon from "./Icon.astro";
+
+interface Props {
+  lang: Lang;
+}
+
+const text = t[Astro.props.lang].contact;
 ---
 
 <section id="contactos" class="section contact" aria-labelledby="contact-title">
   <div class="container grid">
     <div class="head" data-reveal>
-      <p class="eyebrow">Contactos</p>
-      <h2 id="contact-title" class="section-title">Hablemos.</h2>
-      <p class="section-lead">{contact.intro}</p>
+      <p class="eyebrow">{text.eyebrow}</p>
+      <h2 id="contact-title" class="section-title">{text.title}</h2>
+      <p class="section-lead">{text.intro}</p>
     </div>
 
     <ul class="links" data-reveal style="--reveal-delay: 120ms">
       {
-        contact.links.map((link) => (
+        contactLinks.map((link) => (
           <li>
             <a class="link" href={link.href} rel={link.href.startsWith("http") ? "me noopener" : undefined}>
               <span class="icon">

@@ -17,7 +17,7 @@ npm run build     # comprueba los tipos y genera la web final en dist/
 
 ```
 src/
-├── data/site.ts        ← TODO EL CONTENIDO: textos, experiencia, proyectos, contacto
+├── data/site.ts        ← TODO EL CONTENIDO: datos comunes + textos en español + textos en inglés
 ├── assets/             ← imágenes (Astro las optimiza al compilar)
 │   ├── foto.jpg          foto de la portada
 │   ├── logo.png          logo del menú
@@ -31,9 +31,9 @@ src/
 │   ├── Footer.astro      pie de página
 │   └── Icon.astro        iconos SVG que usan las demás piezas
 ├── layouts/Layout.astro ← estructura común de las páginas (<head>, SEO, tema)
-├── pages/              ← cada archivo es una página de la web
-│   ├── index.astro       ksaga.es/
-│   └── privacidad.astro  ksaga.es/privacidad/
+├── pages/[...lang]/    ← cada archivo es una página, generada una vez por idioma
+│   ├── index.astro       ksaga.es/            y ksaga.es/en/
+│   └── privacidad.astro  ksaga.es/privacidad/ y ksaga.es/en/privacidad/
 └── styles/global.css   ← colores, tamaños y estilos comunes
 
 public/                 ← archivos que se publican tal cual, sin procesar
@@ -52,7 +52,8 @@ astro.config.mjs               configuración de Astro (URL de la web)
 
 | Quiero… | Dónde |
 | --- | --- |
-| Cambiar textos, nombre o enlaces | `src/data/site.ts` |
+| Cambiar textos, nombre o enlaces | `src/data/site.ts` (los textos están dos veces: bloque `es` y bloque `en`) |
+| Cambiar un texto solo en inglés | Bloque `en` de `src/data/site.ts` |
 | Cambiar la foto | Sustituir `src/assets/foto.jpg` (mismo nombre) |
 | Añadir una experiencia | Logo en `src/assets/experiencia/`, importarlo y añadirlo a `experience` en `site.ts` |
 | Actualizar el CV | Sustituir `public/documentos/CV_Aleksey_Garcia_Adov.pdf` (mismo nombre) |
@@ -60,6 +61,12 @@ astro.config.mjs               configuración de Astro (URL de la web)
 | Cambiar colores | `accent` en `site.ts`; el resto de colores en `src/styles/global.css` |
 | Cambiar el diseño de una sección | Su archivo en `src/components/` (HTML, CSS y JS juntos) |
 | Cambiar el favicon o la imagen para redes | Sustituir los PNG de `public/` |
+
+## Idiomas
+
+La web existe en español (`ksaga.es/`) y en inglés (`ksaga.es/en/`). El botón **EN / ES** del menú cambia
+de una a otra manteniendo la sección. Los textos de cada idioma están en `src/data/site.ts`; el texto legal
+de privacidad está en `src/pages/[...lang]/privacidad.astro`. El CV en PDF es el mismo en los dos idiomas.
 
 ## Publicar
 

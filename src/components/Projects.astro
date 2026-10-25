@@ -2,22 +2,23 @@
 // Proyectos: rejilla de tarjetas generada desde `projects` en src/data/site.ts.
 // Si la lista está vacía solo se muestra el título y "Próximamente...".
 import { Image } from "astro:assets";
-import { projects, type ProjectStatus } from "../data/site";
+import { projects, t, tr, type Lang } from "../data/site";
 import Icon from "./Icon.astro";
 
-const statusLabel: Record<ProjectStatus, string> = {
-  publicado: "Publicado",
-  "en-desarrollo": "En desarrollo",
-  proximamente: "Próximamente",
-};
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const text = t[lang].projects;
 ---
 
 <section id="proyectos" class="section projects" aria-labelledby="projects-title">
   <div class="container">
     <header class="head" data-reveal>
-      <p class="eyebrow">Proyectos</p>
-      <h2 id="projects-title" class="section-title">Market de proyectos.</h2>
-      {projects.length === 0 && <p class="section-lead">Próximamente...</p>}
+      <p class="eyebrow">{text.eyebrow}</p>
+      <h2 id="projects-title" class="section-title">{text.title}</h2>
+      {projects.length === 0 && <p class="section-lead">{text.empty}</p>}
     </header>
 
     {
@@ -29,7 +30,7 @@ const statusLabel: Record<ProjectStatus, string> = {
                 <div class="media">
                   {
                     image ? (
-                      <Image src={image.src} alt={image.alt} widths={[400, 640, 800]} sizes="(min-width: 1024px) 260px, (min-width: 640px) 45vw, 90vw" />
+                      <Image src={image.src} alt={tr(image.alt, lang)} widths={[400, 640, 800]} sizes="(min-width: 1024px) 260px, (min-width: 640px) 45vw, 90vw" />
                     ) : (
                       // Placeholder: mini ventana con contenido esquemático
                       <div class="placeholder" aria-hidden="true">
@@ -52,7 +53,7 @@ const statusLabel: Record<ProjectStatus, string> = {
                   }
                   <span class:list={["badge", `badge--${status}`]}>
                     {status === "proximamente" && <Icon name="clock" size={14} />}
-                    {statusLabel[status]}
+                    {text.status[status]}
                   </span>
                 </div>
 
@@ -61,18 +62,18 @@ const statusLabel: Record<ProjectStatus, string> = {
                     {
                       href ? (
                         <a href={href} class="stretched">
-                          {title}
+                          {tr(title, lang)}
                           <Icon name="arrowUpRight" size={16} class="arrow" />
                         </a>
                       ) : (
-                        title
+                        tr(title, lang)
                       )
                     }
                   </h3>
-                  <p class="desc">{description}</p>
+                  <p class="desc">{tr(description, lang)}</p>
                   {
                     tags && tags.length > 0 && (
-                      <ul class="tags" aria-label="Tecnologías">
+                      <ul class="tags" aria-label={text.tagsLabel}>
                         {tags.map((tag) => (
                           <li>{tag}</li>
                         ))}

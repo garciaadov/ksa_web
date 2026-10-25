@@ -1,0 +1,151 @@
+---
+// Política de privacidad: ksaga.es/privacidad/ y ksaga.es/en/privacidad/.
+// [PLACEHOLDER] Revisa este texto antes de publicar y rellena [TU NOMBRE] y [TU EMAIL].
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import { languages, site, type Lang } from "../../data/site";
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang: lang === "es" ? undefined : lang }, props: { lang } }));
+}
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+
+const meta = {
+  es: { title: `Privacidad — ${site.title}`, description: `Política de privacidad de la web de ${site.name}.` },
+  en: { title: `Privacy — ${site.title}`, description: `Privacy policy of ${site.name}'s website.` },
+}[lang];
+---
+
+<Layout lang={lang} page="/privacidad/" title={meta.title} description={meta.description}>
+  <Header lang={lang} page="/privacidad/" />
+  <main id="contenido" class="container">
+    {
+      lang === "es" ? (
+        <article class="legal">
+          <p class="eyebrow">Legal</p>
+          <h1>Privacidad</h1>
+          <p class="updated">Última actualización: octubre de 2026</p>
+
+          <h2>Responsable</h2>
+          <p>Esta web es un portfolio personal de [TU NOMBRE]. Para cualquier consulta sobre privacidad puedes escribir a [TU EMAIL].</p>
+
+          <h2>Sin cookies ni analítica</h2>
+          <p>
+            Esta web no utiliza cookies, ni herramientas de analítica, ni sistemas de seguimiento o publicidad. Tampoco carga
+            fuentes, scripts ni otros recursos de servicios de terceros.
+          </p>
+
+          <h2>Datos personales</h2>
+          <p>
+            No se recoge ningún dato personal: no hay formularios ni registro de usuarios. Si decides escribirme por email,
+            usaré tu mensaje solo para responderte.
+          </p>
+
+          <h2>Preferencia de tema</h2>
+          <p>
+            Si eliges manualmente el modo claro u oscuro, esa preferencia se guarda en el almacenamiento local de tu navegador
+            (<code>localStorage</code>) con la clave <code>theme</code>. Este dato no sale de tu dispositivo, no te identifica
+            y puedes borrarlo en cualquier momento desde la configuración de tu navegador.
+          </p>
+
+          <h2>Enlaces externos</h2>
+          <p>
+            Esta web contiene enlaces a sitios de terceros, como LinkedIn y GitHub. Al visitarlos, se aplican sus propias
+            políticas de privacidad y de cookies, sobre las que no tengo control.
+          </p>
+
+          <h2>Alojamiento</h2>
+          <p>
+            Como cualquier servidor web, el proveedor de alojamiento puede registrar datos técnicos de las visitas (por
+            ejemplo, la dirección IP) por motivos de seguridad y funcionamiento, según su propia política de privacidad.
+          </p>
+        </article>
+      ) : (
+        <article class="legal">
+          <p class="eyebrow">Legal</p>
+          <h1>Privacy</h1>
+          <p class="updated">Last updated: October 2026</p>
+
+          <h2>Controller</h2>
+          <p>This website is the personal portfolio of [TU NOMBRE]. For any privacy question you can write to [TU EMAIL].</p>
+
+          <h2>No cookies or analytics</h2>
+          <p>
+            This website does not use cookies, analytics tools, or tracking or advertising systems. It does not load fonts,
+            scripts or any other resources from third-party services either.
+          </p>
+
+          <h2>Personal data</h2>
+          <p>
+            No personal data is collected: there are no forms and no user accounts. If you choose to email me, I will only use
+            your message to reply to you.
+          </p>
+
+          <h2>Theme preference</h2>
+          <p>
+            If you manually choose light or dark mode, that preference is stored in your browser's local storage
+            (<code>localStorage</code>) under the key <code>theme</code>. It never leaves your device, does not identify you
+            and you can delete it at any time from your browser settings.
+          </p>
+
+          <h2>External links</h2>
+          <p>
+            This website links to third-party sites such as LinkedIn and GitHub. When you visit them, their own privacy and
+            cookie policies apply, over which I have no control.
+          </p>
+
+          <h2>Hosting</h2>
+          <p>
+            Like any web server, the hosting provider may log technical data about visits (for example, the IP address) for
+            security and operational purposes, under its own privacy policy.
+          </p>
+        </article>
+      )
+    }
+  </main>
+  <Footer lang={lang} />
+</Layout>
+
+<style>
+  .legal {
+    max-width: 44rem;
+    padding-top: calc(var(--header-h) + clamp(2.5rem, 8vw, 5rem));
+    padding-bottom: var(--section-space);
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 6vw, 3.75rem);
+    font-weight: 700;
+  }
+
+  .updated {
+    margin-top: 0.75rem;
+    font-size: 0.9375rem;
+    color: var(--text-2);
+  }
+
+  h2 {
+    margin-top: 2.5rem;
+    margin-bottom: 0.6rem;
+    font-size: 1.375rem;
+    font-weight: 600;
+  }
+
+  p {
+    color: var(--text-2);
+  }
+
+  code {
+    padding: 0.1em 0.35em;
+    border-radius: 6px;
+    font-size: 0.9em;
+    background: var(--surface-2);
+    color: var(--text);
+  }
+</style>

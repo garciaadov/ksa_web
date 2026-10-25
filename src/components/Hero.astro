@@ -1,7 +1,13 @@
 ---
 // Sección de inicio: foto + titular y presentación.
 import { Image } from "astro:assets";
-import { hero } from "../data/site";
+import { site, t, type Lang } from "../data/site";
+
+interface Props {
+  lang: Lang;
+}
+
+const hero = t[Astro.props.lang].hero;
 ---
 
 <section id="inicio" class="hero" aria-labelledby="hero-title">
@@ -9,7 +15,7 @@ import { hero } from "../data/site";
     <div class="grid">
       <div class="photo" data-reveal>
         <Image
-          src={hero.photo}
+          src={site.photo}
           alt={hero.photoAlt}
           widths={[320, 480, 720]}
           sizes="(min-width: 860px) 360px, 280px"
@@ -23,8 +29,8 @@ import { hero } from "../data/site";
         <h1 id="hero-title">{hero.headline}</h1>
         <p class="intro">{hero.intro}</p>
         <div class="actions">
-          <a class="btn btn-primary" href="#proyectos">Ver proyectos</a>
-          <a class="btn btn-ghost" href="#contactos">Contactar</a>
+          <a class="btn btn-primary" href="#proyectos">{hero.ctaProjects}</a>
+          <a class="btn btn-ghost" href="#contactos">{hero.ctaContact}</a>
         </div>
       </div>
     </div>

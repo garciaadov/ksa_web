@@ -1,12 +1,19 @@
 ---
 // Pie mínimo: © año + nombre + enlace a Privacidad.
+import { path, t, type Lang } from "../data/site";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
 const year = new Date().getFullYear();
 ---
 
 <footer class="footer">
   <div class="container inner">
     <p>© {year} KSA</p>
-    <a href="/privacidad/">Privacidad</a>
+    <a href={path("/privacidad/", lang)}>{t[lang].footer.privacy}</a>
   </div>
 </footer>
 
