@@ -39,8 +39,10 @@ src/
 public/                 ← archivos que se publican tal cual, sin procesar
 ├── documentos/         ← el CV en PDF
 ├── favicon.png, apple-touch-icon.png, og.png   iconos e imagen al compartir en redes
-├── CNAME               ← dominio ksaga.es para GitHub Pages
+├── CNAME               ← dominio ksaga.es (copia que viaja con la web publicada)
 └── robots.txt
+
+CNAME                          dominio ksaga.es para GitHub Pages: NO BORRAR (sin él la web da 404)
 
 .github/workflows/deploy.yml   publica la web automáticamente en cada push a main
 astro.config.mjs               configuración de Astro (URL de la web)
