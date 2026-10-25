@@ -1,4 +1,4 @@
-# KSAGA — web personal de Aleks Garcia
+# KSAGA — web personal 
 
 Web estática hecha con [Astro](https://astro.build), TypeScript y CSS propio. Sin backend, sin cookies y sin analítica.
 Publicada en **https://ksaga.es** con GitHub Pages.
