@@ -3,6 +3,9 @@
 // Cada logo ocupa 1/4 del ancho, así que siempre se ven cuatro. Datos en src/data/experience.ts.
 import { Image } from "astro:assets";
 import { experience } from "../data/experience";
+import { site } from "../data/site";
+import { withBase } from "../lib/url";
+import Icon from "./Icon.astro";
 
 /** Logos visibles a la vez en la fila. */
 const VISIBLE = 4;
@@ -46,6 +49,17 @@ const duration = half.length * 6;
             </ul>
           </div>
         </div>
+      )
+    }
+
+    {
+      site.cv && (
+        <p class="more" data-reveal style="--reveal-delay: 180ms">
+          <a href={withBase(site.cv)} download={site.cv}>
+            <Icon name="download" size={16} />
+            Más información · Descargar currículum (PDF)
+          </a>
+        </p>
       )
     }
   </div>
@@ -158,6 +172,30 @@ const duration = half.length * 6;
       opacity: 1;
       transform: translate(-50%, 0);
     }
+  }
+
+  /* Enlace discreto al currículum */
+  .more {
+    text-align: center;
+  }
+
+  .more a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 44px;
+    padding-inline: 0.75rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.875rem;
+    color: var(--text-2);
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .more a:hover {
+    color: var(--accent-ink);
+    background: var(--accent-soft);
   }
 
   /* Movimiento reducido: fila estática, sin copias */

@@ -40,6 +40,8 @@ export interface SiteConfig {
     photo: ImageMetadata | null;
     photoAlt: string;
   };
+  /** Currículum descargable: nombre del PDF dentro de public/. Quítalo para ocultar el enlace. */
+  cv?: string;
   contact: {
     intro: string;
     links: ContactLink[];
@@ -66,6 +68,8 @@ export const site: SiteConfig = {
     photo: foto,
     photoAlt: "Retrato de Aleks Garcia",
   },
+
+  cv: "CV_Aleksey_Garcia_Adov.pdf",
 
   contact: {
     intro: "¿Tienes una idea o una oferta? Escríbeme por cualquiera de estos canales.",
