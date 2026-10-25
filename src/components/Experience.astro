@@ -1,70 +1,80 @@
 ---
 // Experiencia: fila de logos circulares que se desplaza suavemente hacia la izquierda en bucle.
-// Datos en src/data/experience.ts.
+// Cada logo ocupa 1/4 del ancho, así que siempre se ven cuatro. Datos en src/data/experience.ts.
 import { Image } from "astro:assets";
 import { experience } from "../data/experience";
 
+/** Logos visibles a la vez en la fila. */
+const VISIBLE = 4;
+
 // La pista contiene dos mitades idénticas y la animación desplaza exactamente una mitad,
-// así el bucle no tiene saltos. Cada mitad repite los logos hasta llenar pantallas anchas.
-const repeat = Math.max(2, Math.ceil(12 / Math.max(experience.length, 1)));
+// así el bucle no tiene saltos. Si hay menos logos que VISIBLE, se repiten para llenar la fila.
+const repeat = Math.ceil(VISIBLE / Math.max(experience.length, 1));
 const half = Array.from({ length: repeat }, () => experience).flat();
 const track = [...half, ...half];
-// Segundos por mitad: velocidad constante sea cual sea el número de logos.
-const duration = half.length * 3.5;
+// Segundos por logo: velocidad constante sea cual sea el número de logos.
+const duration = half.length * 6;
 ---
 
-{
-  experience.length > 0 && (
-    <div class="experience" data-reveal style="--reveal-delay: 120ms">
-      <h2 class="eyebrow title">Experiencia</h2>
+<section id="experiencia" class="section experience" aria-labelledby="experience-title">
+  <div class="container">
+    <header class="head" data-reveal>
+      <p class="eyebrow">Experiencia</p>
+      <h2 id="experience-title" class="section-title">Experiencia.</h2>
+    </header>
 
-      {/* Lista accesible; la fila animada es solo visual */}
-      <ul class="sr-only">
-        {experience.map((item) => (
-          <li>{item.role ? `${item.name}: ${item.role}` : item.name}</li>
-        ))}
-      </ul>
+    {
+      experience.length > 0 && (
+        <div data-reveal style="--reveal-delay: 120ms">
+          {/* Lista accesible; la fila animada es solo visual */}
+          <ul class="sr-only">
+            {experience.map((item) => (
+              <li>{item.role ? `${item.name}: ${item.role}` : item.name}</li>
+            ))}
+          </ul>
 
-      <div class="marquee" aria-hidden="true">
-        <ul class="track" style={`--duration: ${duration}s`}>
-          {track.map((item, index) => (
-            <li class:list={["item", { copy: index >= experience.length }]}>
-              <span class="circle" style={`--logo-bg: ${item.background}; --scale: ${item.scale ?? 1}`}>
-                <Image src={item.logo} alt="" width={Math.round(176 * (item.scale ?? 1))} loading="lazy" />
-              </span>
-              <span class="label">{item.role ? `${item.name} · ${item.role}` : item.name}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  )
-}
+          <div class="marquee" aria-hidden="true" style={`--visible: ${VISIBLE}`}>
+            <ul class="track" style={`--duration: ${duration}s`}>
+              {track.map((item, index) => (
+                <li class:list={["item", { copy: index >= experience.length }]}>
+                  <span class="circle" style={`--logo-bg: ${item.background}; --scale: ${item.scale ?? 1}`}>
+                    <Image src={item.logo} alt="" width={Math.round(256 * (item.scale ?? 1))} loading="lazy" />
+                  </span>
+                  <span class="label">{item.role ? `${item.name} · ${item.role}` : item.name}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )
+    }
+  </div>
+</section>
 
 <style>
   .experience {
-    margin-top: clamp(3.5rem, 8vw, 5.5rem);
-    text-align: center;
+    padding-top: clamp(3rem, 8vw, 5rem);
+    padding-bottom: clamp(2rem, 5vw, 3rem);
   }
 
-  .title {
-    margin-bottom: 0;
+  .head {
+    margin-bottom: clamp(0.5rem, 2vw, 1rem);
   }
 
   .marquee {
-    --size: clamp(72px, 18vw, 88px);
-    --gap: clamp(1.75rem, 5vw, 3.5rem);
+    /* Las medidas de los logos se calculan sobre el ancho de la fila (unidades cqi) */
+    container-type: inline-size;
     overflow: hidden;
-    /* Espacio para el tooltip y la sombra; difuminado en los bordes */
+    /* Espacio para el tooltip y la sombra; difuminado suave en los bordes */
     padding-block: 3.75rem 1.5rem;
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
-    mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
   }
 
   .track {
     display: flex;
     width: max-content;
-    animation: scroll var(--duration, 40s) linear infinite;
+    animation: scroll var(--duration, 24s) linear infinite;
   }
 
   /* Pausa al pasar el ratón para poder leer el tooltip */
@@ -84,14 +94,14 @@ const duration = half.length * 3.5;
     flex-direction: column;
     align-items: center;
     gap: 0.6rem;
-    /* Separación como relleno (no gap) para que las dos mitades midan exactamente lo mismo */
-    padding-inline-end: var(--gap);
+    /* Cada logo ocupa exactamente 1/4 de la fila */
+    width: calc(100cqi / var(--visible));
   }
 
   .circle {
     display: grid;
     place-items: center;
-    width: var(--size);
+    width: min(132px, calc(100cqi / var(--visible) - 1.25rem));
     aspect-ratio: 1;
     border-radius: 50%;
     overflow: hidden;
@@ -118,6 +128,7 @@ const duration = half.length * 3.5;
     max-width: 11ch;
     font-size: 0.75rem;
     line-height: 1.25;
+    text-align: center;
     color: var(--text-2);
   }
 
@@ -126,7 +137,7 @@ const duration = half.length * 3.5;
     .label {
       position: absolute;
       bottom: calc(100% + 10px);
-      left: calc(50% - var(--gap) / 2);
+      left: 50%;
       max-width: none;
       padding: 0.35rem 0.7rem;
       border-radius: var(--radius-pill);
@@ -149,7 +160,7 @@ const duration = half.length * 3.5;
     }
   }
 
-  /* Movimiento reducido: fila estática y centrada, sin copias */
+  /* Movimiento reducido: fila estática, sin copias */
   @media (prefers-reduced-motion: reduce) {
     .marquee {
       -webkit-mask-image: none;
@@ -166,14 +177,6 @@ const duration = half.length * 3.5;
 
     .item.copy {
       display: none;
-    }
-
-    .item {
-      padding-inline: calc(var(--gap) / 2);
-    }
-
-    .label {
-      left: 50%;
     }
   }
 </style>
