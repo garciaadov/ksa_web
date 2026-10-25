@@ -2,7 +2,7 @@
 // Cabecera fija y translúcida: logo, menú (hamburguesa en móvil), interruptor claro/oscuro
 // y botón de idioma. El tema inicial lo aplica el script inline de Layout.astro.
 import { Image } from "astro:assets";
-import { languages, path, site, t, type Lang } from "../data/site";
+import { languageNames, languages, path, site, t, type Lang } from "../data/site";
 import Icon from "./Icon.astro";
 
 interface Props {
@@ -14,7 +14,6 @@ interface Props {
 const { lang, page } = Astro.props;
 const nav = t[lang].nav;
 const home = path("/", lang);
-const otherLang = languages.find((l) => l !== lang) ?? lang;
 
 // Los id de sección son los mismos en todos los idiomas. "/#id" funciona igual desde la
 // portada (solo hace scroll) y desde la página de privacidad.
@@ -60,10 +59,26 @@ const links = sectionIds.map((id) => ({ id, label: nav[id] }));
       <span class="slot moon"><Icon name="moon" size={15} /></span>
     </button>
 
-    <a class="lang-switch" href={path(page, otherLang)} hreflang={otherLang} lang={otherLang} data-lang-switch>
-      <span aria-hidden="true">{nav.switchLang.short}</span>
-      <span class="sr-only">{nav.switchLang.label}</span>
-    </a>
+    <!-- Menú de idiomas: <details> se abre y cierra solo (también con teclado y sin JS) -->
+    <details class="lang" data-lang>
+      <summary class="lang-button">
+        <span class="sr-only">{nav.language}: </span>
+        {lang.toUpperCase()}
+        <Icon name="chevronDown" size={14} class="chevron" />
+      </summary>
+      <ul class="lang-menu">
+        {
+          languages.map((l) => (
+            <li>
+              <a href={path(page, l)} hreflang={l} lang={l} aria-current={l === lang ? "true" : undefined} data-lang-option>
+                <span>{languageNames[l]}</span>
+                {l === lang ? <Icon name="check" size={16} /> : <span class="code">{l.toUpperCase()}</span>}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </details>
   </div>
 </header>
 
@@ -81,18 +96,44 @@ const links = sectionIds.map((id) => ({ id, label: nav[id] }));
     menu.classList.toggle("is-open", open);
   }
 
-  button?.addEventListener("click", () => setMenu(button.getAttribute("aria-expanded") !== "true"));
+  button?.addEventListener("click", () => {
+    const open = button.getAttribute("aria-expanded") !== "true";
+    setMenu(open);
+    if (open) langMenu?.removeAttribute("open");
+  });
   navLinks.forEach((link) => link.addEventListener("click", () => setMenu(false)));
 
+  // ---- Menú de idiomas ----
+  const langMenu = document.querySelector<HTMLDetailsElement>("[data-lang]");
+
+  // Al abrirlo se cierra el menú móvil, para que no se superpongan
+  langMenu?.addEventListener("toggle", () => {
+    if (langMenu.open) setMenu(false);
+  });
+
+  // Al elegir idioma se mantiene la sección en la que estás (#experiencia, etc.)
+  document.querySelectorAll<HTMLAnchorElement>("[data-lang-option]").forEach((link) =>
+    link.addEventListener("click", () => {
+      if (window.location.hash) link.href = link.href.split("#")[0] + window.location.hash;
+    }),
+  );
+
+  // Escape o un clic fuera cierran los dos menús
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && button?.getAttribute("aria-expanded") === "true") {
+    if (event.key !== "Escape") return;
+    if (langMenu?.open) {
+      langMenu.removeAttribute("open");
+      langMenu.querySelector("summary")?.focus();
+    } else if (button?.getAttribute("aria-expanded") === "true") {
       setMenu(false);
       button.focus();
     }
   });
 
   document.addEventListener("click", (event) => {
-    if (header && event.target instanceof Node && !header.contains(event.target)) setMenu(false);
+    if (!(event.target instanceof Node)) return;
+    if (header && !header.contains(event.target)) setMenu(false);
+    if (langMenu && !langMenu.contains(event.target)) langMenu.removeAttribute("open");
   });
 
   // ---- Sección activa + sombra del header al hacer scroll ----
@@ -135,12 +176,6 @@ const links = sectionIds.map((id) => ({ id, label: nav[id] }));
   );
   window.addEventListener("resize", update, { passive: true });
   update();
-
-  // ---- Botón de idioma: mantiene la sección en la que estás (#experiencia, etc.) ----
-  document.querySelector<HTMLAnchorElement>("[data-lang-switch]")?.addEventListener("click", (event) => {
-    const link = event.currentTarget as HTMLAnchorElement;
-    if (window.location.hash) link.href = link.href.split("#")[0] + window.location.hash;
-  });
 
   // ---- Interruptor claro / oscuro ----
   type Theme = "light" | "dark";
@@ -419,32 +454,106 @@ const links = sectionIds.map((id) => ({ id, label: nav[id] }));
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
   }
 
-  /* ---- Botón de idioma ---- */
-  .lang-switch {
-    display: grid;
-    place-items: center;
+  /* ---- Menú de idiomas ---- */
+  .lang {
+    position: relative;
     flex-shrink: 0;
-    min-width: 44px;
+  }
+
+  .lang-button {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
     height: 36px;
-    padding-inline: 0.6rem;
+    padding-inline: 0.75rem 0.55rem;
     border-radius: var(--radius-pill);
     background: var(--surface-2);
     box-shadow: inset 0 0 0 1px var(--border);
     font-size: 0.8125rem;
     font-weight: 600;
     letter-spacing: 0.02em;
-    color: var(--text-2);
+    color: var(--text);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
     transition:
       var(--theme-transition),
       color 0.2s ease;
   }
 
-  .lang-switch:hover {
+  /* Quita el triángulo por defecto de <summary> */
+  .lang-button::-webkit-details-marker {
+    display: none;
+  }
+
+  .lang-button:hover,
+  .lang[open] .lang-button {
     color: var(--accent-ink);
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
   }
 
-  :global([data-theme="dark"]) .lang-switch {
+  :global([data-theme="dark"]) .lang-button {
     background: var(--bg);
+  }
+
+  .lang-button :global(.chevron) {
+    color: var(--text-2);
+    transition: transform 0.25s var(--ease);
+  }
+
+  .lang[open] .lang-button :global(.chevron) {
+    transform: rotate(180deg);
+  }
+
+  .lang-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    z-index: 1;
+    display: grid;
+    gap: 0.15rem;
+    min-width: 11rem;
+    padding: 0.4rem;
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    box-shadow: var(--shadow-md), 0 0 0 1px var(--border);
+    transform-origin: top right;
+    animation: lang-in 0.2s var(--ease);
+  }
+
+  @keyframes lang-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px) scale(0.97);
+    }
+  }
+
+  .lang-menu a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 44px;
+    padding: 0.5rem 0.8rem;
+    border-radius: calc(var(--radius-md) - 6px);
+    font-size: 0.9375rem;
+    color: var(--text);
+    transition: background-color 0.2s ease;
+  }
+
+  .lang-menu a:hover {
+    background: var(--surface-2);
+  }
+
+  .lang-menu a[aria-current="true"] {
+    font-weight: 600;
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+  }
+
+  .lang-menu .code {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-2);
   }
 </style>

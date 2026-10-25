@@ -26,6 +26,9 @@ import spbgu from "../assets/experiencia/spbgu.jpg";
 export const languages = ["es", "en"] as const;
 export type Lang = (typeof languages)[number];
 
+/** Nombre de cada idioma tal como aparece en el menú de idiomas (siempre en su propio idioma). */
+export const languageNames: Record<Lang, string> = { es: "Español", en: "English" };
+
 /** Texto que cambia según el idioma. */
 export type Localized = Record<Lang, string>;
 
@@ -134,8 +137,8 @@ const es = {
     closeMenu: "Cerrar menú",
     darkMode: "Modo oscuro",
     homeLink: "ir al inicio",
-    /** Botón de idioma: texto del botón y descripción para lectores de pantalla. */
-    switchLang: { short: "EN", label: "Read in English" },
+    /** Botón del menú de idiomas (para lectores de pantalla). */
+    language: "Idioma",
   },
   hero: {
     role: "Software Developer",
@@ -187,7 +190,7 @@ const en: typeof es = {
     closeMenu: "Close menu",
     darkMode: "Dark mode",
     homeLink: "go to home",
-    switchLang: { short: "ES", label: "Leer en español" },
+    language: "Language",
   },
   hero: {
     role: "Software Developer",

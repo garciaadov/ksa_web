@@ -64,8 +64,9 @@ astro.config.mjs               configuración de Astro (URL de la web)
 
 ## Idiomas
 
-La web existe en español (`ksaga.es/`) y en inglés (`ksaga.es/en/`). El botón **EN / ES** del menú cambia
-de una a otra manteniendo la sección. Los textos de cada idioma están en `src/data/site.ts`; el texto legal
+La web existe en español (`ksaga.es/`) y en inglés (`ksaga.es/en/`). El botón de idioma del menú (ES ⌄) abre la
+lista de idiomas y lleva a la versión elegida manteniendo la sección. Para añadir un idioma, añádelo a
+`languages` y `languageNames` y crea su bloque de textos. Los textos de cada idioma están en `src/data/site.ts`; el texto legal
 de privacidad está en `src/pages/[...lang]/privacidad.astro`. El CV en PDF es el mismo en los dos idiomas.
 
 ## Publicar
