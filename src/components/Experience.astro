@@ -55,9 +55,9 @@ const duration = half.length * 6;
     {
       site.cv && (
         <p class="more" data-reveal style="--reveal-delay: 180ms">
-          <a href={withBase(site.cv)} download={site.cv}>
+          <a class="btn btn-ghost" href={withBase(site.cv)} download={site.cv} aria-label="Más información: descargar currículum en PDF">
+            Más información...
             <Icon name="download" size={16} />
-            Más información · Descargar currículum (PDF)
           </a>
         </p>
       )
@@ -174,28 +174,10 @@ const duration = half.length * 6;
     }
   }
 
-  /* Enlace discreto al currículum */
+  /* Botón de descarga del currículum, centrado bajo los logos */
   .more {
+    margin-top: 0.5rem;
     text-align: center;
-  }
-
-  .more a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    min-height: 44px;
-    padding-inline: 0.75rem;
-    border-radius: var(--radius-pill);
-    font-size: 0.875rem;
-    color: var(--text-2);
-    transition:
-      color 0.2s ease,
-      background-color 0.2s ease;
-  }
-
-  .more a:hover {
-    color: var(--accent-ink);
-    background: var(--accent-soft);
   }
 
   /* Movimiento reducido: fila estática, sin copias */
