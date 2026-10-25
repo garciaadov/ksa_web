@@ -7,14 +7,6 @@ import type { IconName } from "../lib/icons";
 import logo from "../assets/ksa_logo.png";
 import foto from "../assets/inv.jpg";
 
-export interface QuickItem {
-  /** Texto del tooltip / etiqueta. */
-  label: string;
-  icon: IconName;
-  /** Opcional: si se indica, el círculo es un enlace. */
-  href?: string;
-}
-
 export interface ContactLink {
   label: string;
   /** Texto visible bajo la etiqueta (usuario, dirección…). */
@@ -48,8 +40,6 @@ export interface SiteConfig {
     photo: ImageMetadata | null;
     photoAlt: string;
   };
-  /** Fila de 5 iconos circulares bajo el hero. */
-  quickItems: QuickItem[];
   contact: {
     intro: string;
     links: ContactLink[];
@@ -76,16 +66,6 @@ export const site: SiteConfig = {
     photo: foto,
     photoAlt: "Retrato de Aleks Garcia",
   },
-
-  // [PLACEHOLDER] Pueden ser tu stack, habilidades o enlaces rápidos (añade `href`).
-  // Iconos disponibles: ver src/lib/icons.ts.
-  quickItems: [
-    { label: "Python", icon: "code" },
-    { label: "SQL y bases de datos", icon: "database" },
-    { label: "Visualización de datos", icon: "chart" },
-    { label: "Machine Learning e IA", icon: "sparkles" },
-    { label: "Cloud", icon: "cloud" },
-  ],
 
   contact: {
     intro: "¿Tienes una idea o una oferta? Escríbeme por cualquiera de estos canales.",

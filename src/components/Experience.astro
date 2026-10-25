@@ -1,0 +1,179 @@
+---
+// Experiencia: fila de logos circulares que se desplaza suavemente hacia la izquierda en bucle.
+// Datos en src/data/experience.ts.
+import { Image } from "astro:assets";
+import { experience } from "../data/experience";
+
+// La pista contiene dos mitades idénticas y la animación desplaza exactamente una mitad,
+// así el bucle no tiene saltos. Cada mitad repite los logos hasta llenar pantallas anchas.
+const repeat = Math.max(2, Math.ceil(12 / Math.max(experience.length, 1)));
+const half = Array.from({ length: repeat }, () => experience).flat();
+const track = [...half, ...half];
+// Segundos por mitad: velocidad constante sea cual sea el número de logos.
+const duration = half.length * 3.5;
+---
+
+{
+  experience.length > 0 && (
+    <div class="experience" data-reveal style="--reveal-delay: 120ms">
+      <h2 class="eyebrow title">Experiencia</h2>
+
+      {/* Lista accesible; la fila animada es solo visual */}
+      <ul class="sr-only">
+        {experience.map((item) => (
+          <li>{item.role ? `${item.name}: ${item.role}` : item.name}</li>
+        ))}
+      </ul>
+
+      <div class="marquee" aria-hidden="true">
+        <ul class="track" style={`--duration: ${duration}s`}>
+          {track.map((item, index) => (
+            <li class:list={["item", { copy: index >= experience.length }]}>
+              <span class="circle" style={`--logo-bg: ${item.background}; --scale: ${item.scale ?? 1}`}>
+                <Image src={item.logo} alt="" width={Math.round(176 * (item.scale ?? 1))} loading="lazy" />
+              </span>
+              <span class="label">{item.role ? `${item.name} · ${item.role}` : item.name}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+<style>
+  .experience {
+    margin-top: clamp(3.5rem, 8vw, 5.5rem);
+    text-align: center;
+  }
+
+  .title {
+    margin-bottom: 0;
+  }
+
+  .marquee {
+    --size: clamp(72px, 18vw, 88px);
+    --gap: clamp(1.75rem, 5vw, 3.5rem);
+    overflow: hidden;
+    /* Espacio para el tooltip y la sombra; difuminado en los bordes */
+    padding-block: 3.75rem 1.5rem;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  }
+
+  .track {
+    display: flex;
+    width: max-content;
+    animation: scroll var(--duration, 40s) linear infinite;
+  }
+
+  /* Pausa al pasar el ratón para poder leer el tooltip */
+  .marquee:hover .track {
+    animation-play-state: paused;
+  }
+
+  @keyframes scroll {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    /* Separación como relleno (no gap) para que las dos mitades midan exactamente lo mismo */
+    padding-inline-end: var(--gap);
+  }
+
+  .circle {
+    display: grid;
+    place-items: center;
+    width: var(--size);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--logo-bg);
+    box-shadow: var(--shadow-sm), inset 0 0 0 1px var(--border);
+    transition:
+      transform 0.3s var(--ease),
+      box-shadow 0.3s ease;
+  }
+
+  .circle :global(img) {
+    width: calc(100% * var(--scale));
+    height: calc(100% * var(--scale));
+    object-fit: contain;
+  }
+
+  .item:hover .circle {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md), inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  /* Pantallas táctiles: nombre visible debajo del círculo */
+  .label {
+    max-width: 11ch;
+    font-size: 0.75rem;
+    line-height: 1.25;
+    color: var(--text-2);
+  }
+
+  /* Con ratón: el nombre aparece como tooltip */
+  @media (hover: hover) and (pointer: fine) {
+    .label {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: calc(50% - var(--gap) / 2);
+      max-width: none;
+      padding: 0.35rem 0.7rem;
+      border-radius: var(--radius-pill);
+      background: var(--text);
+      color: var(--bg);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, 4px);
+      transition:
+        opacity 0.2s ease,
+        transform 0.2s var(--ease);
+    }
+
+    .item:hover .label {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  }
+
+  /* Movimiento reducido: fila estática y centrada, sin copias */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+
+    .track {
+      flex-wrap: wrap;
+      justify-content: center;
+      row-gap: 1.5rem;
+      width: auto;
+      animation: none;
+    }
+
+    .item.copy {
+      display: none;
+    }
+
+    .item {
+      padding-inline: calc(var(--gap) / 2);
+    }
+
+    .label {
+      left: 50%;
+    }
+  }
+</style>
