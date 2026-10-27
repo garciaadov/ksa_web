@@ -17,6 +17,7 @@ import accenc from "../assets/experiencia/accenc.jpg";
 import jasawa from "../assets/experiencia/jasawa.svg";
 import t1 from "../assets/experiencia/t1.jpg";
 import spbgu from "../assets/experiencia/spbgu.jpg";
+import swayfi from "../assets/proyectos/swayfi.png";
 
 /* ------------------------------------------------------------------ */
 /* Idiomas                                                             */
@@ -81,19 +82,61 @@ export const experience: Experience[] = [
 
 export type ProjectStatus = "publicado" | "en-desarrollo" | "proximamente";
 
+/** Sistemas operativos para los botones de descarga (cada uno tiene su icono en Icon.astro). */
+export type OS = "windows" | "macos" | "linux";
+
 export interface Project {
-  title: string | Localized;
+  title: string;
+  /** Versión que se muestra junto al nombre, p. ej. "v0.1.6". */
+  version?: string;
   description: string | Localized;
   status: ProjectStatus;
-  /** Captura opcional: guárdala en src/assets/, impórtala arriba y pon { src: captura, alt: { es, en } }. */
-  image?: { src: ImageMetadata; alt: string | Localized };
-  /** Enlace a la demo o al repositorio (opcional). */
-  href?: string;
+  /** Icono de la app: guárdalo en src/assets/proyectos/ e impórtalo arriba. */
+  icon?: ImageMetadata;
+  /** Repositorio o web del proyecto: enlace "Más información" al final de la tarjeta. */
+  repo?: string;
+  /** Botones de descarga, uno por sistema operativo. */
+  downloads?: { os: OS; href: string; note: string | Localized }[];
   tags?: string[];
 }
 
 /** Mientras esté vacío, la sección muestra "Próximamente...". Añadir un proyecto = añadir un objeto. */
-export const projects: Project[] = [];
+export const projects: Project[] = [
+  {
+    title: "Swayfi",
+    // Actualízala al publicar una nueva release (los enlaces de descarga ya apuntan siempre a la última)
+    version: "v0.1.6",
+    description: {
+      es:
+        "Conversor de archivos de escritorio, 100 % offline. Arrastras un archivo, eliges el formato y listo: " +
+        "imágenes, audio, vídeo, documentos, PDF, hojas de cálculo, libros electrónicos y más, sin subir nada a internet.",
+      en:
+        "A 100% offline desktop file converter. Drop a file, pick the format and you're done: images, audio, video, " +
+        "documents, PDFs, spreadsheets, e-books and more, without uploading anything to the internet.",
+    },
+    status: "publicado",
+    icon: swayfi,
+    repo: "https://github.com/garciaadov/swayfi",
+    downloads: [
+      {
+        os: "windows",
+        href: "https://github.com/garciaadov/swayfi/releases/latest/download/Swayfi-Windows-setup.exe",
+        note: { es: "Windows 10 u 11 · 460 MB", en: "Windows 10 or 11 · 460 MB" },
+      },
+      {
+        os: "macos",
+        href: "https://github.com/garciaadov/swayfi/releases/latest/download/Swayfi-macOS.dmg",
+        note: { es: "macOS 12+ · Mac M1 o posterior · 1 GB", en: "macOS 12+ · Apple Silicon (M1+) · 1 GB" },
+      },
+      {
+        os: "linux",
+        href: "https://github.com/garciaadov/swayfi/releases/latest/download/Swayfi-Linux.deb",
+        note: { es: "Ubuntu, Debian y derivados · 3 MB", en: "Ubuntu, Debian & derivatives · 3 MB" },
+      },
+    ],
+    tags: ["Rust", "Tauri", "Offline"],
+  },
+];
 
 export interface ContactLink {
   label: string;
@@ -163,6 +206,9 @@ const es = {
     empty: "Próximamente...",
     tagsLabel: "Tecnologías",
     status: { publicado: "Publicado", "en-desarrollo": "En desarrollo", proximamente: "Próximamente" },
+    downloadsLabel: "Descargar",
+    downloadFor: "Descargar para",
+    moreInfo: "Más información en GitHub",
   },
   contact: {
     eyebrow: "Contactos",
@@ -215,6 +261,9 @@ const en: typeof es = {
     empty: "Coming soon...",
     tagsLabel: "Technologies",
     status: { publicado: "Live", "en-desarrollo": "In progress", proximamente: "Coming soon" },
+    downloadsLabel: "Download",
+    downloadFor: "Download for",
+    moreInfo: "More info on GitHub",
   },
   contact: {
     eyebrow: "Contact",

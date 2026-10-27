@@ -21,7 +21,8 @@ src/
 ├── assets/             ← imágenes (Astro las optimiza al compilar)
 │   ├── foto.jpg          foto de la portada
 │   ├── logo.png          logo del menú
-│   └── experiencia/      logos de la sección Experiencia
+│   ├── experiencia/      logos de la sección Experiencia
+│   └── proyectos/        iconos de los proyectos (Swayfi)
 ├── components/         ← una pieza por sección de la página, en orden:
 │   ├── Header.astro      menú superior + interruptor claro/oscuro
 │   ├── Hero.astro        Inicio: foto y presentación
@@ -57,7 +58,8 @@ astro.config.mjs               configuración de Astro (URL de la web)
 | Cambiar la foto | Sustituir `src/assets/foto.jpg` (mismo nombre) |
 | Añadir una experiencia | Logo en `src/assets/experiencia/`, importarlo y añadirlo a `experience` en `site.ts` |
 | Actualizar el CV | Sustituir `public/documentos/CV_Aleksey_Garcia_Adov.pdf` (mismo nombre) |
-| Añadir un proyecto | Añadir un objeto a `projects` en `site.ts` |
+| Añadir un proyecto | Icono en `src/assets/proyectos/`, importarlo y añadir un objeto a `projects` en `site.ts` (nombre, versión, descripción, descargas, repositorio) |
+| Nueva versión de Swayfi | Cambiar `version` en `site.ts`; los botones de descarga ya apuntan siempre a la última release |
 | Cambiar colores | `accent` en `site.ts`; el resto de colores en `src/styles/global.css` |
 | Cambiar el diseño de una sección | Su archivo en `src/components/` (HTML, CSS y JS juntos) |
 | Cambiar el favicon o la imagen para redes | Sustituir los PNG de `public/` |
