@@ -87,6 +87,8 @@ export type OS = "windows" | "macos" | "linux";
 
 export interface Project {
   title: string;
+  /** Subtítulo corto que se ve en la tarjeta pequeña, p. ej. "Conversor de archivos". */
+  tagline: string | Localized;
   /** Versión que se muestra junto al nombre, p. ej. "v0.1.6". */
   version?: string;
   description: string | Localized;
@@ -104,6 +106,7 @@ export interface Project {
 export const projects: Project[] = [
   {
     title: "Swayfi",
+    tagline: { es: "Conversor de archivos", en: "File converter" },
     // Actualízala al publicar una nueva release (los enlaces de descarga ya apuntan siempre a la última)
     version: "v0.1.6",
     description: {
@@ -209,6 +212,9 @@ const es = {
     downloadsLabel: "Descargar",
     downloadFor: "Descargar para",
     moreInfo: "Más información en GitHub",
+    /** Botón de la tarjeta pequeña y botón para cerrar la ficha. */
+    openDetails: "Más información",
+    close: "Cerrar",
   },
   contact: {
     eyebrow: "Contactos",
@@ -264,6 +270,8 @@ const en: typeof es = {
     downloadsLabel: "Download",
     downloadFor: "Download for",
     moreInfo: "More info on GitHub",
+    openDetails: "More info",
+    close: "Close",
   },
   contact: {
     eyebrow: "Contact",

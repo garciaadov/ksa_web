@@ -27,7 +27,7 @@ src/
 │   ├── Header.astro      menú superior + interruptor claro/oscuro
 │   ├── Hero.astro        Inicio: foto y presentación
 │   ├── Experience.astro  Experiencia: logos en movimiento + botón del CV
-│   ├── Projects.astro    Proyectos: rejilla de tarjetas
+│   ├── Projects.astro    Proyectos: tarjetas pequeñas + ficha emergente con descargas
 │   ├── Contact.astro     Contactos
 │   ├── Footer.astro      pie de página
 │   └── Icon.astro        iconos SVG que usan las demás piezas

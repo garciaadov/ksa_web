@@ -1,7 +1,8 @@
 ---
-// Proyectos: una tarjeta ancha por proyecto, generada desde `projects` en src/data/site.ts.
-// Cada tarjeta: icono, nombre y versión, descripción, botones de descarga y enlace al repositorio.
-// Si la lista está vacía solo se muestra el título y "Próximamente...".
+// Proyectos: rejilla de tarjetas pequeñas (imagen, nombre y "Más información").
+// Al pulsar una tarjeta se abre su ficha completa en una ventana con el fondo desenfocado:
+// icono, nombre y versión, descripción, descargas por sistema operativo y enlace al repositorio.
+// Datos en `projects` de src/data/site.ts. Si la lista está vacía se muestra "Próximamente...".
 import { Image } from "astro:assets";
 import { projects, t, tr, type Lang, type OS } from "../data/site";
 import Icon, { type IconName } from "./Icon.astro";
@@ -31,70 +32,92 @@ const osInfo: Record<OS, { name: string; icon: IconName }> = {
 
     {
       projects.length > 0 && (
-        <ul class="list">
-          {projects.map(({ title, version, description, status, icon, repo, downloads, tags }, index) => (
+        <ul class="grid">
+          {projects.map(({ title, tagline, version, description, status, icon, repo, downloads, tags }, index) => (
             <li data-reveal style={`--reveal-delay: ${index * 90}ms`}>
-              <article class="card" aria-labelledby={`project-${index}`}>
-                {/* Cabecera: icono + nombre, versión y descripción */}
-                <div class="intro">
-                  <div class="app-icon">
-                    {icon ? (
-                      <Image src={icon} alt="" width={88} height={88} densities={[1, 2]} />
-                    ) : (
-                      <Icon name="clock" size={32} />
-                    )}
+              {/* ---- Tarjeta pequeña: toda ella es un botón que abre la ficha ---- */}
+              <button type="button" class="card" aria-haspopup="dialog" data-open-project={`proyecto-${index}`}>
+                <span class="thumb">
+                  {icon ? (
+                    <Image src={icon} alt="" width={160} height={160} densities={[1, 2]} />
+                  ) : (
+                    <Icon name="clock" size={40} />
+                  )}
+                  {status !== "publicado" && <span class="pill status floating">{text.status[status]}</span>}
+                </span>
+                <span class="card-name">{title}</span>
+                <span class="card-tagline">{tr(tagline, lang)}</span>
+                <span class="card-cta">
+                  {text.openDetails}
+                  <Icon name="arrowUpRight" size={14} />
+                </span>
+              </button>
+
+              {/* ---- Ficha completa ---- */}
+              <dialog id={`proyecto-${index}`} class="modal" aria-labelledby={`proyecto-${index}-titulo`}>
+                <article class="detail">
+                  <button type="button" class="close" aria-label={text.close} data-close-project>
+                    <Icon name="close" size={20} />
+                  </button>
+
+                  <div class="intro">
+                    <div class="app-icon">
+                      {icon ? (
+                        <Image src={icon} alt="" width={88} height={88} densities={[1, 2]} />
+                      ) : (
+                        <Icon name="clock" size={32} />
+                      )}
+                    </div>
+
+                    <div class="info">
+                      <div class="name">
+                        <h3 id={`proyecto-${index}-titulo`}>{title}</h3>
+                        {version && <span class="pill version">{version}</span>}
+                        {status !== "publicado" && <span class="pill status">{text.status[status]}</span>}
+                      </div>
+                      <p class="desc">{tr(description, lang)}</p>
+                      {tags && tags.length > 0 && (
+                        <ul class="tags" aria-label={text.tagsLabel}>
+                          {tags.map((tag) => (
+                            <li>{tag}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   </div>
 
-                  <div class="info">
-                    <div class="name">
-                      <h3 id={`project-${index}`}>{title}</h3>
-                      {version && <span class="pill version">{version}</span>}
-                      {status !== "publicado" && <span class="pill status">{text.status[status]}</span>}
-                    </div>
-                    <p class="desc">{tr(description, lang)}</p>
-                    {tags && tags.length > 0 && (
-                      <ul class="tags" aria-label={text.tagsLabel}>
-                        {tags.map((tag) => (
-                          <li>{tag}</li>
+                  {downloads && downloads.length > 0 && (
+                    <div class="downloads">
+                      <p class="label">{text.downloadsLabel}</p>
+                      <ul>
+                        {downloads.map(({ os, href, note }) => (
+                          <li>
+                            <a class="download" href={href}>
+                              <Icon name={osInfo[os].icon} size={22} class="os-icon" />
+                              <span class="text">
+                                <span class="os">
+                                  <span class="sr-only">{text.downloadFor} </span>
+                                  {osInfo[os].name}
+                                </span>
+                                <span class="note">{tr(note, lang)}</span>
+                              </span>
+                              <Icon name="download" size={18} class="dl-icon" />
+                            </a>
+                          </li>
                         ))}
                       </ul>
-                    )}
-                  </div>
-                </div>
+                    </div>
+                  )}
 
-                {/* Descargas: un botón por sistema operativo */}
-                {downloads && downloads.length > 0 && (
-                  <div class="downloads">
-                    <p class="label">{text.downloadsLabel}</p>
-                    <ul>
-                      {downloads.map(({ os, href, note }) => (
-                        <li>
-                          <a class="download" href={href}>
-                            <Icon name={osInfo[os].icon} size={22} class="os-icon" />
-                            <span class="text">
-                              <span class="os">
-                                <span class="sr-only">{text.downloadFor} </span>
-                                {osInfo[os].name}
-                              </span>
-                              <span class="note">{tr(note, lang)}</span>
-                            </span>
-                            <Icon name="download" size={18} class="dl-icon" />
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Pie: enlace al repositorio */}
-                {repo && (
-                  <a class="more" href={repo}>
-                    <Icon name="github" size={18} />
-                    {text.moreInfo}
-                    <Icon name="arrowUpRight" size={16} class="arrow" />
-                  </a>
-                )}
-              </article>
+                  {repo && (
+                    <a class="more" href={repo}>
+                      <Icon name="github" size={18} />
+                      {text.moreInfo}
+                      <Icon name="arrowUpRight" size={16} class="arrow" />
+                    </a>
+                  )}
+                </article>
+              </dialog>
             </li>
           ))}
         </ul>
@@ -102,6 +125,22 @@ const osInfo: Record<OS, { name: string; icon: IconName }> = {
     }
   </div>
 </section>
+
+<script>
+  // Abre la ficha al pulsar su tarjeta. Escape la cierra de forma nativa (<dialog>);
+  // además se cierra con la ✕ y al pulsar fuera de la ficha (sobre el fondo desenfocado).
+  document.querySelectorAll<HTMLButtonElement>("[data-open-project]").forEach((card) => {
+    const dialog = document.getElementById(card.dataset.openProject ?? "");
+    if (!(dialog instanceof HTMLDialogElement)) return;
+
+    card.addEventListener("click", () => dialog.showModal());
+    dialog.querySelector("[data-close-project]")?.addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", (event) => {
+      // El <dialog> ocupa solo el fondo; la ficha es el <article> de dentro
+      if (event.target === dialog) dialog.close();
+    });
+  });
+</script>
 
 <style>
   .projects {
@@ -112,20 +151,183 @@ const osInfo: Record<OS, { name: string; icon: IconName }> = {
     margin-bottom: clamp(2rem, 5vw, 3.5rem);
   }
 
-  .list {
+  /* ---- Rejilla de tarjetas pequeñas: 2 en móvil, 3 en tablet, 4 en escritorio ---- */
+  .grid {
     display: grid;
-    gap: 1.5rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(0.75rem, 2vw, 1.25rem);
   }
 
-  /* ---- Tarjeta ---- */
+  @media (min-width: 640px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
   .card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 0.6rem 0.6rem 1rem;
+    border: 0;
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm), inset 0 0 0 1px var(--border);
+    text-align: left;
+    cursor: pointer;
+    transition:
+      var(--theme-transition),
+      transform 0.3s var(--ease);
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md), inset 0 0 0 1px var(--border);
+  }
+
+  /* Imagen cuadrada, como la foto de un artículo */
+  .thumb {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    margin-bottom: 0.85rem;
+    border-radius: calc(var(--radius-lg) - 6px);
+    background: #ffffff;
+    color: var(--accent-ink);
+    box-shadow: inset 0 0 0 1px var(--border);
+    overflow: hidden;
+  }
+
+  .thumb :global(img) {
+    width: 52%;
+    height: 52%;
+    object-fit: contain;
+    transition: transform 0.4s var(--ease);
+  }
+
+  .card:hover .thumb :global(img) {
+    transform: scale(1.06);
+  }
+
+  .card-name {
+    padding-inline: 0.4rem;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .card-tagline {
+    padding-inline: 0.4rem;
+    font-size: 0.875rem;
+    color: var(--text-2);
+  }
+
+  .card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    align-self: flex-start;
+    margin: 0.85rem 0.4rem 0;
+    padding: 0.4rem 0.85rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+    transition: background-color 0.2s ease;
+  }
+
+  .card:hover .card-cta {
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+  }
+
+  /* ---- Ventana con la ficha completa ---- */
+  .modal {
+    width: min(760px, calc(100% - 2rem));
+    max-height: calc(100dvh - 2rem);
+    margin: auto;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-xl);
+    background: transparent;
+    color: var(--text);
+    overflow: visible;
+  }
+
+  /* Fondo de la página desenfocado mientras la ficha está abierta */
+  .modal::backdrop {
+    background: rgb(0 0 0 / 0.35);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    backdrop-filter: blur(10px) saturate(140%);
+  }
+
+  .modal[open] {
+    animation: modal-in 0.3s var(--ease);
+  }
+
+  .modal[open]::backdrop {
+    animation: backdrop-in 0.3s ease;
+  }
+
+  @keyframes modal-in {
+    from {
+      opacity: 0;
+      transform: translateY(16px) scale(0.97);
+    }
+  }
+
+  @keyframes backdrop-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* Evita que la página de detrás se desplace con la ficha abierta */
+  :global(html:has(dialog[open])) {
+    overflow: hidden;
+  }
+
+  .detail {
+    position: relative;
     display: grid;
     gap: clamp(1.5rem, 3vw, 2rem);
+    max-height: calc(100dvh - 2rem);
     padding: clamp(1.25rem, 3.5vw, 2.25rem);
     border-radius: var(--radius-xl);
     background: var(--surface);
-    box-shadow: var(--shadow-sm), inset 0 0 0 1px var(--border);
-    transition: var(--theme-transition);
+    box-shadow: var(--shadow-md), inset 0 0 0 1px var(--border);
+    overflow-y: auto;
+  }
+
+  .close {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--surface-2);
+    color: var(--text-2);
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .close:hover {
+    color: var(--text);
+    background: var(--accent-soft);
   }
 
   .intro {
@@ -165,6 +367,7 @@ const osInfo: Record<OS, { name: string; icon: IconName }> = {
     flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem 0.75rem;
+    padding-right: 2.5rem;
   }
 
   h3 {
@@ -190,9 +393,15 @@ const osInfo: Record<OS, { name: string; icon: IconName }> = {
     background: var(--surface-2);
   }
 
+  .floating {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    font-size: 0.75rem;
+  }
+
   .desc {
     margin-top: 0.6rem;
-    max-width: 46rem;
     font-size: 1.0625rem;
     color: var(--text-2);
   }
@@ -232,7 +441,7 @@ const osInfo: Record<OS, { name: string; icon: IconName }> = {
     gap: 0.75rem;
   }
 
-  @media (min-width: 860px) {
+  @media (min-width: 720px) {
     .downloads ul {
       grid-template-columns: repeat(3, 1fr);
     }
@@ -304,12 +513,12 @@ const osInfo: Record<OS, { name: string; icon: IconName }> = {
     transition: transform 0.25s var(--ease);
   }
 
-  .more:hover :global(.arrow) {
-    transform: translate(2px, -2px);
-  }
-
   .more:hover {
     text-decoration: underline;
     text-underline-offset: 3px;
+  }
+
+  .more:hover :global(.arrow) {
+    transform: translate(2px, -2px);
   }
 </style>
